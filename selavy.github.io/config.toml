@@ -1,7 +1,8 @@
 baseURL = "https://selavy.github.io/"
 languageCode = "en-us"
-title = "selavy"
+title = "c'est la vie"
 theme = "kiera"
+# theme = "tale"
 canonifyurls = true
 
 # Kiera Theme Configuration
