@@ -1,0 +1,19 @@
+baseURL = "http://selavy.github.io/"
+languageCode = "en-us"
+title = "selavy"
+theme = "kiera"
+canonifyurls = true
+
+# Kiera Theme Configuration
+pygmentsCodeFences = true
+[author]
+    name = "Peter Lesslie"       #Author name
+    github = "selavy"     #Github username
+#    gitlab = ""     #Gitlab username
+#    linkedin = ""   #LinkedIn username
+#    facebook = ""   #Facebook username
+#    twitter = ""    #Twitter username
+#    instagram = ""  #Instagram username
+
+#[params]
+#    tagline = "the tagline for this website"
