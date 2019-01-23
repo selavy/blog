@@ -209,11 +209,47 @@ TEST_CASE("Set and clear bits first BitVector", "[column1_2]")
 # Problem #3
 Q: Run-time efficiency was an important part of the design goal, and the resulting program was efficient enough. Implement the bitmap sort on your system and measure its run time; how does it compare to the system sort and to the sorts in Problem 1? Assume that *n*=10,000,000, and that the input file contains 1,000,000 integers.
 
+## BitMap Sort
+
+``` cpp
+#include <cstdio>
+#include <cstdlib>
+#include "bit_vector.h" // from problem #2
+
+constexpr size_t MaxValue = 10000000;
+
+int main(int argc, char** argv) {
+    BitVector<MaxValue> vec;
+    int val;
+    char input[256];
+    while (fgets(&input[0], sizeof(input), stdin) != NULL) {
+        val = atoi(&input[0]);
+        vec.set(val);
+    }
+    for (int i = 0; i < MaxValue; ++i) {
+        if (vec.isset(i)) {
+            printf("%d\n", i);
+        }
+    }
+    return 0;
+}
+```
+
+## Timings
+
+| Method              | Time (sec) |
+|:--------------------|------------|
+| Debug Set Sort      | 1.588      |
+| Release Set Sort    | 0.705      |
+| Debug Bitmap Sort   | 0.133      |
+| Release Bitmap Sort | 0.118      |
+| System Sort         | 0.973      |
+
+# Problem 4
+
 If you take Problem 3 seriously, you will face the problem of generating *k* integers less than *n* without duplicates.  The simplest approach uses the first *k* positive integers.  This extreme data set wo't alter the run time of the bitmap method by much, but it might skew the run time of a system sort. How could you generate a file of k unique random integers between 0 and *n* - 1 in random order? Strive for a short program that is also efficient.
 
-## Generating *k* unique random integers between 0 and *n* - 1
-
-Cheating with numpy:
+## Numpy solution
 
 ``` python
 import numpy as np
@@ -224,7 +260,7 @@ vals = np.random.choice(range(M), N, replace=False)
 print('\n'.join([str(x) for x in vals]))
 ```
 
-Actually solving it with C++:
+## C++ Solution
 
 ``` cpp
 #include <cstdio>
@@ -261,40 +297,265 @@ int main(int argc, char** argv)
 }
 ```
 
+# Problem 5
 
-## BitMap Sort
+The programmer said that he had about a megabyte of free storage, but the code we sketched uses 1.25 megabytes. He was able to scrounge the extra space without much trouble. If the megabyte had been a hard and fast boundary, what would you have recommended? What is the run time of your algorithm?
+
+My initial thought is to just make multiple passes over the input file.  This technique doesn't work if you need an online algorithm though.
 
 ``` cpp
 #include <cstdio>
 #include <cstdlib>
-#include "bit_vector.h" // from problem #2
+#include <cstdint>
+#include <cstring>
 
-constexpr size_t MaxValue = 10000000;
-
-int main(int argc, char** argv) {
-    BitVector<MaxValue> vec;
-    int val;
-    char input[256];
-    while (fgets(&input[0], sizeof(input), stdin) != NULL) {
-        val = atoi(&input[0]);
-        vec.set(val);
+constexpr int Limit = 1 << 20; // 1 MB
+constexpr int MaxValue = 10000000;
+int main(int argc, char** argv)
+{
+    if (argc != 2)
+    {
+        fprintf(stderr, "Usage: %s <FILE>\n", argv[0]);
+        exit(1);
     }
-    for (int i = 0; i < MaxValue; ++i) {
-        if (vec.isset(i)) {
-            printf("%d\n", i);
+
+    FILE* fp = fopen(argv[1], "r");
+    if (!fp)
+    {
+        fprintf(stderr, "Unable to open file: '%s'\n", argv[1]);
+        exit(1);
+    }
+
+    uint32_t bitmap[Limit/32];
+    char input[256];
+    int val;
+    for (int base = 0; base < MaxValue; base += Limit)
+    {
+        rewind(fp);
+        memset(&bitmap[0], 0, sizeof(bitmap));
+        const int lo = base;
+        const int hi = base + Limit;
+
+        while (fgets(&input[0], sizeof(input), fp) != NULL)
+        {
+            val = atoi(&input[0]);
+            if (!(val >= lo && val < hi))
+                continue;
+            val -= base;
+            int idx = val / 32;
+            int off = val % 32;
+            bitmap[idx] |= static_cast<uint32_t>(1) << off;
+        }
+
+        for (int i = 0; i < Limit; ++i)
+        {
+            int idx = i / 32;
+            int off = i % 32;
+            if ((bitmap[idx] & (static_cast<uint32_t>(1) << off)) != 0)
+            {
+                printf("%d\n", i + base);
+            }
         }
     }
+
+    fclose(fp);
+    return 0;
+}
+```
+
+# Problem 6
+
+What would you recommend to the programmer if instead of saying that each integer could appear at most once, he told you that each integer could appear at most ten times? How would your solution change as a function of the amount of available storage?
+
+Idea is to keep 10 million 4-bit cells, each time a number is seen, increment the appropriate cell.
+
+## Implementation #1: bitfields using explicit widths
+
+We can let the compiler generate the shifts and masks for us.
+
+```cpp
+#include <cstdio>
+#include <cstdlib>
+#include <cstdint>
+#include <cassert>
+#include <cinttypes>
+#include <cstring>
+#include <memory>
+
+constexpr int MaxValue = 10000000;
+constexpr int Elements = MaxValue / 2; // using 4-bits per number
+
+struct EE {
+    uint8_t lo:4; // even
+    uint8_t hi:4; // odd
+};
+static EE cnts[Elements];
+
+
+int main(int argc, char** argv) {
+    char input[256];
+    memset(&cnts[0], 0, sizeof(cnts));
+    while (fgets(&input[0], sizeof(input), stdin) != NULL) {
+        int val = atoi(&input[0]);
+        int idx = val / 2;
+        if (val % 2 == 0) {
+            ++cnts[idx].lo;
+            assert(cnts[idx].lo <= 10 && "More than 10 duplicates!");
+        } else {
+            ++cnts[idx].hi;
+            assert(cnts[idx].hi <= 10 && "More than 10 duplicates!");
+        }
+    }
+
+    for (int i = 0; i < Elements; ++i) {
+        for (int p = 0; p < cnts[i].lo; ++p) {
+            printf("%d\n", 2*i);
+        }
+        for (int p = 0; p < cnts[i].hi; ++p) {
+            printf("%d\n", 2*i+1);
+        }
+    }
+
+    return 0;
+}
+
+```
+
+## Implementation #2: shift and mask by hand
+
+``` cpp
+static uint8_t cnts[Elements];
+
+int main(int argc, char** argv) {
+    char input[256];
+    memset(&cnts[0], 0, sizeof(cnts));
+    while (fgets(&input[0], sizeof(input), stdin) != NULL) {
+        const int val = atoi(&input[0]);
+        const int idx = val / 2;
+        uint8_t lo = (cnts[idx] >> 0) & 0x0Fu;
+        uint8_t hi = (cnts[idx] >> 4) & 0x0Fu;
+        if (val % 2 == 0) {
+            ++lo;
+        } else {
+            ++hi;
+        }
+        cnts[idx] = (hi << 4) | (lo << 0);
+    }
+
+    for (int i = 0; i < Elements; ++i) {
+        int lo = (cnts[i] >> 0) & 0x0Fu;
+        int hi = (cnts[i] >> 4) & 0x0Fu;
+        for (int p = 0; p < lo; ++p) {
+            printf("%d\n", 2*i);
+        }
+        for (int p = 0; p < hi; ++p) {
+            printf("%d\n", 2*i+1);
+        }
+    }
+
     return 0;
 }
 ```
 
 
-## Timings
+## Implementation #3: Safety off
 
-| Method              | Time (sec) |
-|:--------------------|------------|
-| Debug Set Sort      | 1.588      |
-| Release Set Sort    | 0.705      |
-| Debug Bitmap Sort   | 0.133      |
-| Release Bitmap Sort | 0.118      |
-| System Sort         | 0.973      |
+Since we are storing the odd-value counters in the upper 4-bits of each byte, we can take advance of the fact that adding 2^4 (=16) will never increment bits in the lower nibble (except in the case of overflow).  This is analogous to adding 10^x to a base 10 number; repeatedly adding 10,000 to a number will never change the bottom 4 digits.
+
+This method is slightly faster, but is less safe because we aren't verifying that there aren't more than 10 duplicates.
+
+``` cpp
+static uint8_t cnts[Elements];
+
+int main(int argc, char** argv) {
+    char input[256];
+    memset(&cnts[0], 0, sizeof(cnts));
+    while (fgets(&input[0], sizeof(input), stdin) != NULL) {
+        const int val = atoi(&input[0]);
+        const int idx = val / 2;
+        if (val % 2 == 0) {
+            cnts[idx] += 1u << 0;
+        } else {
+            cnts[idx] += 1u << 4;
+        }
+        assert(((cnts[idx] >> 0) & 0x0F) <= 10 && "More than 10 duplicates!");
+        assert(((cnts[idx] >> 4) & 0x0F) <= 10 && "More than 10 duplicates!");
+    }
+
+    for (int i = 0; i < Elements; ++i) {
+        int lo = (cnts[i] >> 0) & 0x0F;
+        int hi = (cnts[i] >> 4) & 0x0F;
+        for (int p = 0; p < lo; ++p) {
+            printf("%d\n", 2*i);
+        }
+        for (int p = 0; p < hi; ++p) {
+            printf("%d\n", 2*i+1);
+        }
+    }
+
+    return 0;
+}
+```
+
+## Additional Thoughts
+
+I thought at first that it should be possible to use a struct like:
+```cpp
+struct EE {
+    uint8_t count: 4;
+} __attribute__((packed));
+```
+
+but that doesn't appear to be the case as you can see in this [Compiler Explorer](https://gcc.godbolt.org/z/UVcr2y) example. I did stumble on a [library](https://github.com/gpakosz/PackedArray) that might help with this situation, but I didn't really explore it.
+
+# Problem 7
+
+[R. Weil] The program as sketeched has several flaws.  The first is that it assumes that no integer appears twice in the input. What happens if one does show up more than once? How could the program be modified to call an error function in that case? What happens when an input integer is less than zero or greater than or equal to n? What if an input is not numeric? What should a program do under those circumstances? What other sanity checks could the program incorporate? Describe small data sets taht test the program, including its proper handling of these and other ill-behaved cases.
+
+# Problem 8
+
+When the programmer faced the problem, all toll-free phone numbers in the United States had the 800 area code. Toll-free codes now include 800, 877 and 888, and the list is growing. How would you sort all of the toll-free numbers using only a megabyte? How can you store a set of toll-free numbers to allow very rapid lookup to determine whether a given toll-free number is available or already taken?
+
+# Problem 9
+
+One problem with trading more space to use less time is that intializing the space can itself take a great deal of time. Show how to circumvent this problem by designing a technique to initialize an entry of a vector to zero the first time it is accessed. Your scheme should use constant time for initialization and for each vector access, and use extra space proportional to the size of the vector. Because this method reduces initialization time by using even more space, it should be considered only when space is cheap, time is dear and the vector is sparse.
+
+``` cpp
+struct Array {
+    // 3 parallel arrays
+    int* data;
+    int* to;
+    int* from;
+    // next available element
+    int top{0};
+
+    void initialize(size_t i, int value) noexcept
+    {
+        from[i] = top;
+        to[top] = i;
+        data[i] = value;
+        ++top;
+    }
+
+    bool is_initialized(size_t i) const noexcept
+    {
+        return from[i] < top && to[from[i]] == i;
+    }
+};
+```
+
+# Problem 10
+
+Before the days of low-cost overnight deliveries, a store allowed customers to order items over the telephone, which they picked up a few days later. The store's database used the customer's telephone number as the primary key for retrieval (customers know their phone numbers and the keys are close to unique). How would you organize the store's database to allow orders to be inserted and retrieved efficiently?
+
+Use last n-digits as a hash.
+
+# Problem 11
+
+In the early 1980's Lockheed engineers transmitted daily a dozen drawings from a Computer Aided Design (CAD) system in their Sunnyvale, California, plant to a test station in Santa Cruz. Although the facilities were just 25 miles apart, an automobile courier service took over an hour (due to traffic jams and mountain roads) and cost a hundred dollars per day. Propose alternative data transmission schemes and estimate their cost.
+
+# Problem 12
+
+Pioneers of human space flight soon realized the need for writing implements that work well in the extreme environment of space. A popular urban legend asserts that the United States National Aeronautics and Space Administration (NASA) solved the problem with a million dollars of research to develop a special pen. According to the legend, how did the Soviets solve the same problem?
+
+A pencil.
