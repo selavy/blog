@@ -197,6 +197,7 @@ In the late 1970's, Bell Labs deployed a "user-operated directory assistance" pr
 
 This problem is solved just like the anagram problem.
 
+``` cpp
 // NOTE: other time vs. space tradeoffs exist, could build full
 //       256 entry to avoid AND and sub
 const char ButtonMap[64] = {
@@ -230,3 +231,39 @@ std::string telesign(std::string first, std::string last) noexcept
     rv += '*';
     return rv;
 }
+```
+
+# Problem 7
+
+In the early 1960's, Vic Vyssotsky worked with a programmer who had to transpose a 4000-by-4000 matrix stored on magnetic tape (each record had the same format in several dozen bytes). The original program his colleague suggested would have taken fifty hours to run; how did Vyssotsky reduce the run time to half an hour?
+
+Answer given in book: If matrix is row-major, then prepend the column and row to each element, sort, remove the column and row.
+
+# Problem 8
+
+[J. Ullman] Given a set of _n_ real numbers, a real number _t_, and an integer _k_, how quickly can you determine whether there exists a k-element subset of the set that sums to at most _t_?
+
+Sum the smallest _k_ elements in the set and compare to _t_.  Should be able to use quick select, but could just use sort then choose _k_ elements.
+
+# Problem 9
+
+Sequential search and binary search represent a tradeoff between search time and preprocessing time. How many binary searches need be performed in an _n_-element table to buy back the preprocessing time required to sort the table?
+
+Sorting is O(nlog(n)), Linear search is O(n), Binary Search is O(log(n)).
+
+$$s = Searches Needed$$
+
+$$s*lg(n) + n*lg(n) < s*n$$
+
+$$n*lg(n) < s*n - s*lg(n)$$
+
+$$s > n*lg(n)/(n-lg(n))$$
+
+
+Need O(n*lg(n) / (n - lg(n))) searches to make it worth it (ignoring constant factors, which is probably not correct).
+
+# Problem 10
+
+On the day a new research reported to work for Thomas Edison, Edison asked him to compute the volume of an empty light bulb shell. After several hours with calipers and calculus, the fresh hire returned with the answer of 150 cubic centimeters. In a few seconds, Edison computed and responded "closer to 155" -- how did he do it?
+
+Fill the light bulb with water.
