@@ -1,5 +1,5 @@
 +++
-title = "Programming Pearls Ch3"
+title = "Programming Pearls Chapter 3"
 date = 2019-01-31T20:28:30-08:00
 draft = false
 tags = []
