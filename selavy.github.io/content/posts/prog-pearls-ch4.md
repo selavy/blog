@@ -226,6 +226,27 @@ function exp(x, n)
 
 The loop invariant is result = x^n, which we will decompose until n = 0, at which point we know x^0 = 1. The only thing to really prove is that n will reach 0: since on each iteration either n -> floor(n/2) or n -> n - 1, n will eventually reach 0.
 
+The iterative version of this function is:
+
+```cpp
+int exp(int x, int n)
+{
+    int result = 1;
+    for (;;) {
+        // loop invariant: exp = x^n
+        if (n % 2 == 1) {
+            result = result * x;
+        }
+        n = n / 2;
+        if (n == 0) {
+            break;
+        }
+        x = x * x;
+    }
+    return result;
+}
+```
+
 # Problem #10
 
 Introduce errors into the binary search function and see whether (and how) they are caught by attempting to verify the buggy code.
