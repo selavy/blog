@@ -103,7 +103,21 @@ If even white, then black final bean.
 
 # Problem #7
 
-A colleague faced the following problem in a program to draw lines on a bit-mapped display. An array of *n* pairs of reals (a_i, b_i) defined the *n* lines y_i = a_i*x + b_i. The lines were ordered in the x-iunterval [0, 1] in the sense that y_i < y_{i+1} for all values of *i* between 0 and n-2 and all values of *x* in [0,1]. Les formally, the lines don't touch in the vertical slab. Given a point (x,y), where 0<=x<=1, he wanted to determine the two lines that bracket the point. How could he solve the problem quickly?
+A colleague faced the following problem in a program to draw lines on a bit-mapped display. An array of *n* pairs of reals (a_i, b_i) defined the *n* lines y_i = a_i*x + b_i. The lines were ordered in the x-iunterval [0, 1] in the sense that y_i < y_{i+1} for all values of *i* between 0 and n-2 and all values of *x* in [0,1]. Less formally, the lines don't touch in the vertical slab. Given a point (x,y), where 0<=x<=1, he wanted to determine the two lines that bracket the point. How could he solve the problem quickly?
+
+It's not clear what to do if the given point is above the top line or below the bottom line, but this is covers the common case:
+
+``` cpp
+template <class Iter>
+std::pair<Iter, Iter> find_line(Iter first, Iter last, const double x, const double y)
+{
+    auto&& compare = [x](double y, std::pair<double, double> p) noexcept -> bool {
+        return y < (x*p.first + p.second);
+    };
+    auto hi = std::upper_bound(first, last, y, compare);
+    return std::make_pair(hi - 1, hi);
+}
+```
 
 # Problem #8
 
