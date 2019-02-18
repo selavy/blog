@@ -6,7 +6,7 @@ tags = []
 categories = []
 +++
 
-Problems from Column #3: Data Structures Programs
+Problems from Column #4: Writing Correct Programs
 
 # Lessons
 
