@@ -87,6 +87,8 @@ while x != 1 do
         x = 3*x+1
 ```
 
+The hint for this problem says, "If you solve this problem, run to the nearest mathematics department and ask for a Ph.D.". So going to wait on this solution.
+
 # Problem #6
 
 David Gries calls this the "Coffee Can Problem" in his *Science of Programming*. You are initially given a coffee can that contains some black beans and some white beans and a large pile of "extra" black beans. You then repeat the following process until there is a single bean left in the can.
