@@ -74,6 +74,52 @@ int find_max(std::vector<int> vs) {
 
 # Problem #9
 
+Because sequential search is simpler than binary search, it is usually more efficient for small tables. On the other hand, the logarithmic number of comparisons made by binary search implies that it will be faster than the linear time of sequential search for larger tables. The break-even point is a function of how much each program is tuned. How long and how high can you make that break-even point? What is it on your machine when both programs are equally tuned?
+
+# Problem #10
+
+D. B. Lomet observes that hashing may solve the 1000-integer search problem more efficiently than the tuned binary search. Implement a fast hashing program and compare it to the tuned binary search; how do they compare in terms of speed and space?
+
+# Problem #11
+
 In the early 1960's, Vic Berecz found that most of the time in a simulation program at Sikorsky Aircraft was devoted to computing trigonmetric functions. Further investigation showed that the functions were computed only at integral multiples of five degrees. How did he reduce the run time?
 
 Either cache the results, or make a LUT. You only need 360 / 5 = 72 elements per function.
+
+# Problem #12
+
+One sometimes tunes programs by thinking about mathematics rather than code.
+
+To evaluate the polynomial `y = a_n*x**n + a_{n-1}*x**{n-1} + ... + a_1*x**1 + a_0`
+
+the following code uses 2n multiplications. Give a faster function.
+
+```
+y = a[0]
+xi = 1
+for i = [1, n]
+    xi = x * xi
+    y = y + a[i]*xi
+```
+
+Use horner's method:
+
+```
+y = a[n]
+for i = [n-1 .. 1] # N.B. backwards
+    y *= x
+    y += a[i]
+```
+
+Like the usual atoi function:
+
+``` c
+const char atoi(const char* const s) {
+    int result = 0;
+    while (*s) {
+        result *= 10;
+        result += *s++;
+    }
+    return result;
+}
+```
