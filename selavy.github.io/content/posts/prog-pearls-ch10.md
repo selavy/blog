@@ -4,7 +4,7 @@ date = 2019-02-22T18:30:05-08:00
 draft = false
 +++
 
-Problems from Column #9: Squeezing Space
+Problems from Column #10: Squeezing Space
 
 # Problem #1
 
