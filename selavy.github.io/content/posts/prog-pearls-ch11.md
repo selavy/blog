@@ -6,6 +6,19 @@ draft = false
 
 Problems from Column #11: Sorting
 
+# Lessons from Programming Pearls:
+
+* Work on the right problem.
+* Explore the design space of solutions.
+* Look at the data.
+* Use the back of the envelope.
+* Exploit symmetry
+* Design with components.
+* Build prototypes.
+* Make tradeoffs when you have to.
+* Keep it simple.
+* Strive for elegance.
+
 First implementation of quicksort:
 
 ``` cpp
