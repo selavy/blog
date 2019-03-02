@@ -156,7 +156,7 @@ double calc_mode(std::vector<double> vs) {
 double calc_mean(std::vector<double> vs) {
     double sum = std::accumulate(vs.begin(), vs.end(), 0.);
     return sum / vs.size();
-    }
+}
 ```
 
 # Problem #2
