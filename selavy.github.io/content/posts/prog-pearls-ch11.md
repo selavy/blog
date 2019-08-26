@@ -32,7 +32,7 @@ bool is_partitioned(I begin, I end, I mid, C cmp) {
 
 template <class I>
 I partition(I begin, I end) {
-    // partition [begin, end) around *begin
+    // partition [begin, end) around *begin -- NOTE: explore the other partition strategies
     auto lo = begin + 1;
     auto hi = end - 1;
     while (lo < hi) {
@@ -59,7 +59,6 @@ I partition(I begin, I end) {
     }
     std::iter_swap(begin, mid);
 
-    // assert is partitioned
     assert(is_partitioned(begin  , mid, mid, std::less_equal<>{}));
     assert(is_partitioned(mid + 1, end, mid, std::greater_equal<>{}));
 
@@ -78,7 +77,7 @@ void qsort(I begin, I end) {
 }
 ```
 
-Note to self: don't get lazy. Was easy to establish the loop invariants for partiion(), but I then took too much time correctly setting mid. Just slow down to work it out.
+Note to self: don't get lazy. Was easy to establish the loop invariants for partition(), but I then took too much time correctly setting mid. Just slow down to work it out.
 
 Pretty cool that it's easy with C++14 generic lambdas to use std::is_partitioned(). My tests cases looked like:
 
@@ -138,7 +137,9 @@ I partition(I begin, I end) {
 
 Like any other powerful tool, sorting is often used when it shouldn't be and not used when it should be. Explain how sorting could be overused or underused when calculating the following statistics of an array of *n* floating point numbers: minimum, maximum, mean, median, and mode.
 
-minimum, maximum, mode, and mean can all be calculated online so no sorting needed. Median can be calculated with the quickselect algorithm, but sorting isn't a completely unreasonable implementation.
+minimum, maximum, mode, and mean can all be calculated online so no sorting needed. Median can be calculated with the quickselect algorithm or with 2 heaps, but sorting isn't a completely unreasonable implementation.
+
+Median with 2 heaps algorithm: one min-heap, one max-heap; `len(heap1) - len(heap2) <= 1`, i.e. there are half of the elements in each heap (for odd number of elements, the extra element can go in either).
 
 Very, very simple implementation of mode:
 ``` cpp
