@@ -1,6 +1,3 @@
-[submodule "selavy.github.io/themes/kiera"]
-	path = selavy.github.io/themes/kiera
-	url = https://github.com/avianto/hugo-kiera.git
 [submodule "selavy.github.io/public"]
 	path = selavy.github.io/public
 	url = https://selavy@github.com/selavy/selavy.github.io.git
