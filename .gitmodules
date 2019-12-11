@@ -8,3 +8,6 @@
 [submodule "selavy.github.io/themes/tale"]
 	path = selavy.github.io/themes/tale
 	url = https://github.com/EmielH/tale-hugo.git
+[submodule "selavy.github.io/themes/hugo-kiera"]
+	path = selavy.github.io/themes/hugo-kiera
+	url = https://github.com/funkydan2/hugo-kiera.git
