@@ -460,7 +460,7 @@ int main(int argc, char** argv) {
 
 ## Implementation #3: Safety off
 
-Since we are storing the odd-value counters in the upper 4-bits of each byte, we can take advance of the fact that adding 2^4 (=16) will never increment bits in the lower nibble (except in the case of overflow).  This is analogous to adding 10^x to a base 10 number; repeatedly adding 10,000 to a number will never change the bottom 4 digits.
+Since we are storing the odd-value counters in the upper 4-bits of each byte, we can take advantage of the fact that adding 2^4 (=16) will never increment bits in the lower nibble (except in the case of overflow).  This is analogous to adding 10^x to a base 10 number; repeatedly adding 10,000 to a number will never change the bottom 4 digits.
 
 This method is slightly faster, but is less safe because we aren't verifying that there aren't more than 10 duplicates.
 
