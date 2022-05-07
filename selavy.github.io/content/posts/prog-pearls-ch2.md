@@ -21,7 +21,7 @@ Problems for Column #2: "Aha! Algorithms"
 
 # Problem #1
 
-Consider the problem of finding all the anagrmas of a given input word. How would you solve this problem given only the word and the dictionary? What if you could spend some time and space to process the dictionary before answering any queries?
+Consider the problem of finding all the anagrams of a given input word. How would you solve this problem given only the word and the dictionary? What if you could spend some time and space to process the dictionary before answering any queries?
 
 The key is to generate a hash for each word that is the same regardless of order of the letters so that anagrams will hash to the same value. The most straightforward solution is to sort the letters.
 
